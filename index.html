@@ -3,38 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Airdrop</title>
+    <title>Telegram User Data</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            margin: 50px;
         }
         .container {
-            max-width: 500px;
+            max-width: 400px;
             margin: auto;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         h1 {
             color: #0078D7;
         }
-        .user-info {
-            font-size: 18px;
-            color: #333;
+        .info {
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to Airdrop!</h1>
-        <div id="userInfo" class="user-info">
-            Loading your Telegram info...
+        <h1>Welcome!</h1>
+        <div class="info">
+            <p><strong>Username:</strong> <span id="username-value">Loading...</span></p>
+            <p><strong>Balance:</strong> <span id="balance-value">0</span></p>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure the Telegram Web App is initialized and the user is accessible
+            if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+                const user = window.Telegram.WebApp.initDataUnsafe.user;
+
+                if (user) {
+                    let username = user.username || user.first_name || 'Unknown';
+                    if (username.length > 10) {
+                        username = username.substring(0, 10) + '...';
+                    }
+                    document.getElementById('username-value').innerText = username;
+
+                    // Fetch stored balance from local storage
+                    const storedBalance = localStorage.getItem(`balance_${user.id}`);
+                    let balance = 0;
+                    if (storedBalance !== null) {
+                        balance = parseFloat(storedBalance);
+                    }
+                    document.getElementById('balance-value').innerText = balance.toFixed(2);
+
+                    // Update display logic, if any
+                    updateDisplay();
+                } else {
+                    alert("Unable to get Telegram user info.");
+                }
+            } else {
+                alert("Telegram Web App API is not available.");
+            }
+        });
+
+        function updateDisplay() {
+            // Placeholder for UI updates if needed
+            console.log("Display updated.");
+        }
+    </script>
 </body>
 </html>
