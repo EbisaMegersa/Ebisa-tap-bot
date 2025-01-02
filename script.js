@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ratioEl = document.getElementById('ratio');
     const mineCircle = document.getElementById('mine-circle');
     let lastClaimTimestamp = null;
-    const maxPointsPerDay = 1; // Points mined per 24 hours
+    const maxPointsPerDay = 100; // Points mined per 24 hours (changed from 1 to 100)
     const millisecondsInDay = 86400000; // 24 hours in milliseconds
 
     // Fetch Telegram user data if available
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Claim 1 point if 24 hours have passed
+    // Claim 100 points if 24 hours have passed
     function claimPoints() {
         const currentTime = Date.now();
 
@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Add 1 point to balance
-        userBalance++;
+        // Add 100 points to balance
+        userBalance += 100; // Changed from 1 point to 100 points
         balanceEl.innerText = userBalance.toFixed(0);
 
         // Update last claim timestamp
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        alert("You claimed 1 point successfully!");
+        alert("You claimed 100 points successfully!");
     }
 
     // Update mining progress dynamically
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Update progress display
-        ratioEl.innerText = `#10/${pointsMined.toFixed(2)}`;
+        ratioEl.innerText = `#100/${pointsMined.toFixed(2)}`; // Changed from #10 to #100
         updateTimeLeftDisplay(timeLeft);
     }
 
