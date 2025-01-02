@@ -2,8 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let userBalance = 0; // Initial balance
     const balanceEl = document.getElementById('balance');
     const mineEl = document.getElementById('mine');
+    const ratioEl = document.getElementById('ratio');
     const mineCircle = document.getElementById('mine-circle');
     let lastClaimTimestamp = null;
+    const maxPointsPerDay = 1; // Points mined per 24 hours
+    const millisecondsInDay = 86400000; // 24 hours in milliseconds
 
     // Fetch Telegram user data if available
     if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
@@ -23,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Update UI
             balanceEl.innerText = userBalance.toFixed(0);
-            updateMineStatus();
+            updateMiningProgress();
         }
     }
 
@@ -35,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const timeDifference = currentTime - lastClaimTimestamp;
 
             // Check if 24 hours (86,400,000 milliseconds) have passed
-            if (timeDifference < 86400000) {
-                const hoursLeft = Math.ceil((86400000 - timeDifference) / 3600000);
+            if (timeDifference < millisecondsInDay) {
+                const hoursLeft = Math.floor((millisecondsInDay - timeDifference) / 3600000);
                 alert(`You can claim again in ${hoursLeft} hours.`);
                 return;
             }
@@ -48,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update last claim timestamp
         lastClaimTimestamp = currentTime;
-        updateMineStatus();
+        updateMiningProgress();
 
         // Save to localStorage
         if (typeof Telegram !== 'undefined' && Telegram.WebApp.initDataUnsafe) {
@@ -62,26 +65,37 @@ document.addEventListener('DOMContentLoaded', () => {
         alert("You claimed 1 point successfully!");
     }
 
-    // Update the mining status
-    function updateMineStatus() {
+    // Update mining progress dynamically
+    function updateMiningProgress() {
         const currentTime = Date.now();
+        let pointsMined = 0;
+        let timeLeft = millisecondsInDay;
 
         if (lastClaimTimestamp) {
-            const timeDifference = currentTime - lastClaimTimestamp;
+            const timeElapsed = currentTime - lastClaimTimestamp;
 
-            if (timeDifference < 86400000) {
-                const hoursLeft = Math.ceil((86400000 - timeDifference) / 3600000);
-                mineEl.innerText = `Wait ${hoursLeft}h`;
-            } else {
-                mineEl.innerText = "Claim Now!";
+            if (timeElapsed < millisecondsInDay) {
+                pointsMined = (timeElapsed / millisecondsInDay) * maxPointsPerDay;
+                timeLeft = millisecondsInDay - timeElapsed;
             }
-        } else {
-            mineEl.innerText = "Claim Now!";
         }
+
+        // Update progress display
+        ratioEl.innerText = `#10/${pointsMined.toFixed(2)}`;
+        updateTimeLeftDisplay(timeLeft);
     }
 
-    // Check mining status every minute
-    setInterval(updateMineStatus, 60000);
+    // Convert time left to hours, minutes, and seconds
+    function updateTimeLeftDisplay(millisecondsLeft) {
+        const hours = Math.floor(millisecondsLeft / 3600000);
+        const minutes = Math.floor((millisecondsLeft % 3600000) / 60000);
+        const seconds = Math.floor((millisecondsLeft % 60000) / 1000);
+
+        mineEl.innerText = `${hours}h:${minutes}m:${seconds}s left`;
+    }
+
+    // Check mining progress every second
+    setInterval(updateMiningProgress, 1000);
 
     // Attach claim logic to the circle
     mineCircle.addEventListener('click', claimPoints);
