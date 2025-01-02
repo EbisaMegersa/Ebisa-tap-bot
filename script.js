@@ -1,23 +1,27 @@
 // script.js
-document.addEventListener("DOMContentLoaded", function () {
-    const userInfoDiv = document.getElementById("userInfo");
+document.addEventListener('DOMContentLoaded', () => {
+    // Ensure Telegram Web App API is available
+    if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
+        const user = Telegram.WebApp.initDataUnsafe.user;
 
-    // Check if Telegram Web App integration is available
-    if (window.Telegram && Telegram.WebApp.initData) {
-        const initData = Telegram.WebApp.initDataUnsafe;
+        if (user) {
+            // Set Telegram username
+            const username = user.username || user.first_name || 'Unknown';
+            document.getElementById('telegram-name').innerText = username;
 
-        if (initData.user) {
-            const { first_name, last_name, username, id } = initData.user;
-            const name = `${first_name} ${last_name || ""}`.trim();
-            userInfoDiv.innerHTML = `
-                <p><strong>Name:</strong> ${name}</p>
-                <p><strong>Username:</strong> @${username || "Not provided"}</p>
-                <p><strong>ID:</strong> ${id}</p>
-            `;
+            // Set balance
+            const storedBalance = localStorage.getItem(`balance_${user.id}`);
+            let balance = storedBalance ? parseFloat(storedBalance) : 100; // Default balance
+            localStorage.setItem(`balance_${user.id}`, balance.toFixed(2));
+            document.getElementById('balance').innerText = balance.toFixed(2);
         } else {
-            userInfoDiv.innerHTML = `<p>Unable to fetch user info. Please open this site from Telegram.</p>`;
+            alert("Unable to get Telegram user info.");
         }
     } else {
-        userInfoDiv.innerHTML = `<p>This feature works only when opened via Telegram.</p>`;
+        alert("Telegram Web App API is not available.");
     }
+
+    // Other placeholder elements
+    document.getElementById('mine').innerText = "#mine";
+    document.getElementById('ratio').innerText = "#10/0";
 });
