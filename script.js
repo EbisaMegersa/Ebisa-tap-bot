@@ -1,6 +1,5 @@
-// script.js
 document.addEventListener('DOMContentLoaded', () => {
-    let userBalance = 0;
+    let userBalance = 0; // Initial balance
     let progress = 0;
     const maxProgress = 10; // 10 seconds required to mine
 
@@ -21,7 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Initialize balance for the user
             const storedBalance = localStorage.getItem(`balance_${user.id}`);
-            userBalance = storedBalance ? parseFloat(storedBalance) : 0;
+            if (storedBalance === null) {
+                // If no stored balance, initialize with 0
+                userBalance = 0;
+                localStorage.setItem(`balance_${user.id}`, userBalance.toFixed(0));
+            } else {
+                // Load stored balance
+                userBalance = parseFloat(storedBalance);
+            }
             balanceEl.innerText = userBalance.toFixed(0);
         }
     }
