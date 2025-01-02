@@ -1,0 +1,71 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffd23f; /* Yellow background */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 90%;
+    width: 100%;
+    max-width: 400px;
+}
+
+.top, .bottom {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.top div, .bottom button {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.balance {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+    color: #333;
+}
+
+.circle {
+    width: 200px;
+    height: 200px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.circle #mine {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.ratio {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.bottom button {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 18px;
+    cursor: pointer;
+}
