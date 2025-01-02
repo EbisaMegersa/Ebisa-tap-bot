@@ -92,6 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const seconds = Math.floor((millisecondsLeft % 60000) / 1000);
 
         mineEl.innerText = `${hours}h:${minutes}m:${seconds}s left`;
+
+        // Beautiful feature: Animate and add a gradient effect to the #mine element
+        mineEl.style.background = `linear-gradient(45deg, #f39c12, #f1c40f, #e67e22)`;
+        mineEl.style.animation = "pulse 2s infinite";
+
+        // Add a subtle glow effect to the text
+        mineEl.style.textShadow = "0 0 20px rgba(255, 165, 0, 0.8), 0 0 30px rgba(255, 165, 0, 0.6)";
     }
 
     // Check mining progress every second
