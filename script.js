@@ -1,13 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     let userBalance = 0; // Initial balance
-    let progress = 0;
-    const maxProgress = 10; // 10 seconds required to mine
-
     const balanceEl = document.getElementById('balance');
     const mineEl = document.getElementById('mine');
-    const ratioEl = document.getElementById('ratio');
     const mineCircle = document.getElementById('mine-circle');
-    let miningInterval = null;
+    let lastClaimTimestamp = null;
 
     // Fetch Telegram user data if available
     if (typeof Telegram !== 'undefined' && Telegram.WebApp && Telegram.WebApp.initDataUnsafe) {
@@ -18,57 +14,75 @@ document.addEventListener('DOMContentLoaded', () => {
             const username = user.username || user.first_name || 'Unknown';
             document.getElementById('telegram-name').innerText = username;
 
-            // Initialize balance for the user
+            // Initialize balance and last claim timestamp for the user
             const storedBalance = localStorage.getItem(`balance_${user.id}`);
-            if (storedBalance === null) {
-                // If no stored balance, initialize with 0
-                userBalance = 0;
-                localStorage.setItem(`balance_${user.id}`, userBalance.toFixed(0));
-            } else {
-                // Load stored balance
-                userBalance = parseFloat(storedBalance);
-            }
+            const storedTimestamp = localStorage.getItem(`lastClaim_${user.id}`);
+
+            userBalance = storedBalance ? parseFloat(storedBalance) : 0;
+            lastClaimTimestamp = storedTimestamp ? parseInt(storedTimestamp, 10) : null;
+
+            // Update UI
             balanceEl.innerText = userBalance.toFixed(0);
+            updateMineStatus();
         }
     }
 
-    // Mining logic
-    function startMining() {
-        if (miningInterval) return; // Prevent multiple intervals
+    // Claim 1 point if 24 hours have passed
+    function claimPoints() {
+        const currentTime = Date.now();
 
-        progress = 0; // Reset progress
-        updateProgress();
+        if (lastClaimTimestamp) {
+            const timeDifference = currentTime - lastClaimTimestamp;
 
-        miningInterval = setInterval(() => {
-            progress++;
-            updateProgress();
-
-            if (progress >= maxProgress) {
-                clearInterval(miningInterval);
-                miningInterval = null;
-
-                // Add 1 point to balance after 10 seconds
-                userBalance++;
-                balanceEl.innerText = userBalance.toFixed(0);
-
-                // Update localStorage
-                if (typeof Telegram !== 'undefined' && Telegram.WebApp.initDataUnsafe) {
-                    const user = Telegram.WebApp.initDataUnsafe.user;
-                    if (user) {
-                        localStorage.setItem(`balance_${user.id}`, userBalance.toFixed(0));
-                    }
-                }
+            // Check if 24 hours (86,400,000 milliseconds) have passed
+            if (timeDifference < 86400000) {
+                const hoursLeft = Math.ceil((86400000 - timeDifference) / 3600000);
+                alert(`You can claim again in ${hoursLeft} hours.`);
+                return;
             }
-        }, 1000); // 1-second intervals
+        }
+
+        // Add 1 point to balance
+        userBalance++;
+        balanceEl.innerText = userBalance.toFixed(0);
+
+        // Update last claim timestamp
+        lastClaimTimestamp = currentTime;
+        updateMineStatus();
+
+        // Save to localStorage
+        if (typeof Telegram !== 'undefined' && Telegram.WebApp.initDataUnsafe) {
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                localStorage.setItem(`balance_${user.id}`, userBalance.toFixed(0));
+                localStorage.setItem(`lastClaim_${user.id}`, lastClaimTimestamp.toString());
+            }
+        }
+
+        alert("You claimed 1 point successfully!");
     }
 
-    // Update progress display
-    function updateProgress() {
-        const percentage = Math.round((progress / maxProgress) * 100);
-        mineEl.innerText = `${percentage}%`;
-        ratioEl.innerText = `#10/${progress}`;
+    // Update the mining status
+    function updateMineStatus() {
+        const currentTime = Date.now();
+
+        if (lastClaimTimestamp) {
+            const timeDifference = currentTime - lastClaimTimestamp;
+
+            if (timeDifference < 86400000) {
+                const hoursLeft = Math.ceil((86400000 - timeDifference) / 3600000);
+                mineEl.innerText = `Wait ${hoursLeft}h`;
+            } else {
+                mineEl.innerText = "Claim Now!";
+            }
+        } else {
+            mineEl.innerText = "Claim Now!";
+        }
     }
 
-    // Attach mining logic to the circle
-    mineCircle.addEventListener('click', startMining);
+    // Check mining status every minute
+    setInterval(updateMineStatus, 60000);
+
+    // Attach claim logic to the circle
+    mineCircle.addEventListener('click', claimPoints);
 });
