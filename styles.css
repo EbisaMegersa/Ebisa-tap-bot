@@ -48,6 +48,8 @@ body {
     justify-content: center;
     align-items: center;
     margin: 20px 0;
+    cursor: pointer;
+    position: relative;
 }
 
 .circle #mine {
